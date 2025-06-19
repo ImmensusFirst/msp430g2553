@@ -1,0 +1,8 @@
+.git/*
+.svn/*
+
+Debug/*
+.iar/*/*
+
+*.htm
+*.html
