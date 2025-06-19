@@ -9,7 +9,6 @@
  *
  */
 
-
 /* Not tested yet, use at your own risk */
 
 #ifndef __MSP430G2553_VS
@@ -355,7 +354,7 @@ typedef struct
 #define UCB0_SPI      ((USCI_SPI_Type *)UCB0_SPI_BASE)
 
 #define UCSI_SPI_BASE_ADDRS {UCA0_SPI_BASE, UCB0_SPI_BASE}
-#define USCI_BASE_PTRS      {UCA0_SPI, UCB0_SPI}
+#define USCI_SPI_BASE_PTRS  {UCA0_SPI, UCB0_SPI}
 
 /*****************************************************************************
 * @brief: UCSI I2C Mode
@@ -385,7 +384,7 @@ typedef struct
 #define UCB0_I2C_BASE       (0x0068U)
 #define UCB0_I2C            ((USCI_I2C_Type *)UCB0_I2C_BASE)
 #define UCSI_I2C_BASE_ADDRS {UCB0_I2C_BASE}
-#define USCI_BASE_PTRS      {UCB0_I2C}
+#define USCI_I2C_BASE_PTRS  {UCB0_I2C}
 
 /*****************************************************************************
 * @brief: Watchdog Timer
