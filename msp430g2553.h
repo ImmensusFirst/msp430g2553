@@ -2,7 +2,7 @@
  * @file msp430g2553.h
  * @author Dmitrii Rubtsov (immensus.genuine@gmail.com)
  * @brief Header file compatible with VS Code
- * @version 0.1
+ * @version 0.4
  * @date 2025-06-19
  *
  * @copyright Copyright (c) 2025
@@ -85,28 +85,14 @@ typedef struct
     __READ uint8_t      LENGTH_2;            /* Length ADC12 block */
     __READ uint16_t     CAL_ADC_GAIN_FACTOR; /* ADC Gain Factor */
     __READ uint16_t     CAL_ADC_OFFSET;      /* ADC Offset */
-    __READ TLV_ADC_Type CAL_ADC_15;
-    __READ TLV_ADC_Type CAL_ADC_25;
-    // __READ uint16_t CAL_ADC_15VREF_FACTOR; /* ADC 1.5V Ref. Factor */
-    // __READ uint16_t CAL_ADC_15T30;         /* 1.5V/30Deg Cal. Value */
-    // __READ uint16_t CAL_ADC_15T85;         /* 1.5V/85Deg Cal. Value */
-    // __READ uint16_t CAL_ADC_25VREF_FACTOR; /* 2.5V Ref. Factor */
-    // __READ uint16_t CAL_ADC_25T30;         /* 2.5V/30Deg Cal. Value */
-    // __READ uint16_t CAL_ADC_25T85;         /* 2.5V/85Deg Cal. Value */
-    __READ uint8_t      TAG_3;         /* Tag empty block */
-    __READ uint8_t      LENGTH_3;      /* Length empty block */
-    __READ uint16_t     RESERVED_1[4]; /* Empty block */
-    __READ uint8_t      TAG_4;         /* Tag DCO block */
-    __READ uint8_t      LENGTH_4;      /* Length DCO block */
-    __READ TLV_BCS_Type CAL_BCS[4];
-    // __READ uint8_t      CALDCO_16MHZ; /* DCO value for 16MHz */
-    // __READ uint8_t      CALBC1_16MHZ; /* BCS_CTL1 value for 16MHz */
-    // __READ uint8_t      CALDCO_12MHZ; /* DCO value for 12MHz */
-    // __READ uint8_t      CALBC1_12MHZ; /* BCS_CTL1 value for 12MHz */
-    // __READ uint8_t      CALDCO_8MHZ;  /* DCO value for 8MHz */
-    // __READ uint8_t      CALBC1_8MHZ;  /* BCS_CTL1 value for 8MHz */
-    // __READ uint8_t      CALDCO_1MHZ;  /* DCO value for 1MHz */
-    // __READ uint8_t      CALBC1_1MHZ;  /* BCS_CTL1 value for 1MHz */
+    __READ TLV_ADC_Type CAL_ADC_15;          /* ADC Cal. for 1.5V */
+    __READ TLV_ADC_Type CAL_ADC_25;          /* ADC Cal. for 2.5V */
+    __READ uint8_t      TAG_3;               /* Tag empty block */
+    __READ uint8_t      LENGTH_3;            /* Length empty block */
+    __READ uint16_t     RESERVED_1[4];       /* Empty block */
+    __READ uint8_t      TAG_4;               /* Tag DCO block */
+    __READ uint8_t      LENGTH_4;            /* Length DCO block */
+    __READ TLV_BCS_Type CAL_BCS[4];          /* BCS Cal. */
 } TLV_Type;
 #pragma pack(pop)
 
@@ -138,30 +124,21 @@ typedef struct
 
 typedef struct
 {
+    volatile uint8_t         DTC0; /* ADC10 data transfer control 0 */
+    volatile uint8_t         DTC1; /* ADC10 data transfer control 1 */
+    volatile uint8_t         AE0;  /* ADC10 input enable 0 */
+    volatile uint8_t         RESERVED_0[357];
     volatile uint16_t        CTL0; /* ADC10 control 0 */
     volatile uint16_t        CTL1; /* ADC10 control 1 */
     volatile __READ uint16_t MEM;  /* ADC10 memory */
-    volatile uint16_t        RESERVED_0[3];
+    volatile uint16_t        RESERVED_1[3];
     volatile uint16_t        SA; /* ADC10 data transfer start address */
 } ADC10_Type;
 
-#define ADC10_BASE       (0x01b0U)
+#define ADC10_BASE       (0x0048U)
 #define ADC10            ((ADC10_Type *)ADC10_BASE)
 #define ADC10_BASE_ADDRS {ADC10_BASE}
 #define ADC10_BASE_PTRS  {ADC10}
-
-typedef struct
-{
-    volatile uint8_t DTC0; /* ADC10 data transfer control 0 */
-    volatile uint8_t DTC1; /* ADC10 data transfer control 1 */
-    volatile uint8_t AE0;  /* ADC10 input enable 0 */
-    volatile uint8_t AE1;  /* ADC10 input enable 1 */
-} ADC10DT_Type;
-
-#define ADC10DT_BASE       (0x0048U)
-#define ADC10DT            ((ADC10DT_Type *)ADC10DT_BASE)
-#define ADC10DT_BASE_ADDRS {ADC10DT_BASE}
-#define ADC10DT_BASE_PTRS  {ADC10DT}
 
 /*****************************************************************************
 * @brief: System Clock
@@ -206,8 +183,6 @@ typedef struct
     volatile uint16_t CTL1; /* Flash memory control 1 */
     volatile uint16_t CTL2; /* Flash memory control 2 */
     volatile uint16_t CTL3; /* Flash memory control 3 */
-    uint16_t          RESERVED_0[72];
-    volatile uint16_t CTL4; /* Flash memory control 4 */
 } FLASH_Type;
 
 #define FLASH_BASE       (0x0128U)
@@ -707,21 +682,21 @@ typedef struct
   1b = Start sample-and-conversion */
 #define ADC10_CTL0_ADC10SC(x)    (((uint16_t)(((uint16_t)(x)) << ADC10_CTL0_ADC10SC_SHIFT)) & ADC10_CTL0_ADC10SC_MASK)
 
-/* ADC10_CTL0_ADC10SHT */
-#define ADC10_CTL0_ADC10SHT_0 (0U) /* 4 ADC10CLK cycles */
-#define ADC10_CTL0_ADC10SHT_1 (1U) /* 8 ADC10CLK cycles */
-#define ADC10_CTL0_ADC10SHT_2 (2U) /* 16 ADC10CLK cycles */
-#define ADC10_CTL0_ADC10SHT_3 (3U) /* 64 ADC10CLK cycles */
+/* ADC10_CTL0_SHT */
+#define ADC10_CTL0_SHT_4_CLOCKS  (0U) /* ADC10 sample-and-hold time: 4 ADC10CLK cycles */
+#define ADC10_CTL0_SHT_8_CLOCKS  (1U) /* ADC10 sample-and-hold time: 8 ADC10CLK cycles */
+#define ADC10_CTL0_SHT_16_CLOCKS (2U) /* ADC10 sample-and-hold time: 16 ADC10CLK cycles */
+#define ADC10_CTL0_SHT_64_CLOCKS (3U) /* ADC10 sample-and-hold time: 64 ADC10CLK cycles */
 
 /* ADC10_CTL0_SREF */
-#define ADC10_CTL0_SREF_0 (0U) /* VR+ = VCC and VR- = VSS */
-#define ADC10_CTL0_SREF_1 (1U) /* VR+ = VREF+ and VR- = VSS */
-#define ADC10_CTL0_SREF_2 (2U) /* VR+ = VeREF+ and VR- = VSS. Devices with VeREF+ only */
-#define ADC10_CTL0_SREF_3 (3U) /* VR+ = Buffered VeREF+ and VR- = VSS. Devices with VeREF+ pin only */
-#define ADC10_CTL0_SREF_4 (4U) /* VR+ = VCC and VR- = VREF-/ VeREF-. Devices with VeREF- pin only */
-#define ADC10_CTL0_SREF_5 (5U) /* VR+ = VREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
-#define ADC10_CTL0_SREF_6 (6U) /* VR+ = VeREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
-#define ADC10_CTL0_SREF_7 (7U) /* VR+ = Buffered VeREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
+#define ADC10_CTL0_SREF_AVCC_AVSS      (0U) /* Select reference: VR+ = VCC and VR- = VSS */
+#define ADC10_CTL0_SREF_VREF_AVSS      (1U) /* Select reference: VR+ = VREF+ and VR- = VSS */
+#define ADC10_CTL0_SREF_VEREF_AVSS     (2U) /* Select reference: VR+ = VeREF+ and VR- = VSS. Devices with VeREF+ only */
+#define ADC10_CTL0_SREF_BUF_VEREF_AVSS (3U) /* Select reference: VR+ = Buffered VeREF+ and VR- = VSS. Devices with VeREF+ pin only */
+#define ADC10_CTL0_SREF_AVCC_VREF      (4U) /* Select reference: VR+ = VCC and VR- = VREF-/ VeREF-. Devices with VeREF- pin only */
+#define ADC10_CTL0_SREF_VREF_VREF      (5U) /* Select reference: VR+ = VREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
+#define ADC10_CTL0_SREF_VEREF_VREF     (6U) /* Select reference: VR+ = VeREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
+#define ADC10_CTL0_SREF_BUF_VEREF_VREF (7U) /* Select reference: VR+ = Buffered VeREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
 
 /*****************************************************************************
  * @brief: ADC10_CTL1
@@ -813,40 +788,50 @@ typedef struct
 #define ADC10_CTL1_ADC10BUSY(x)    (((uint16_t)(((uint16_t)(x)) << ADC10_CTL1_ADC10BUSY_SHIFT)) & ADC10_CTL1_ADC10BUSY_MASK)
 
 /* ADC10_CTL1_INCH */
-#define ADC10_CTL1_INCH_0  (0U) /* A0 */
-#define ADC10_CTL1_INCH_1  (1U) /* A1 */
-#define ADC10_CTL1_INCH_2  (2U) /* A2 */
-#define ADC10_CTL1_INCH_3  (3U) /* A3 */
-#define ADC10_CTL1_INCH_4  (4U) /* A4 */
-#define ADC10_CTL1_INCH_5  (5U) /* A5 */
-#define ADC10_CTL1_INCH_6  (6U) /* A6 */
-#define ADC10_CTL1_INCH_7  (7U) /* A7 */
-#define ADC10_CTL1_INCH_8  (0U) /* VeREF+ */
-#define ADC10_CTL1_INCH_9  (1U) /* VREF-/VeREF- */
-#define ADC10_CTL1_INCH_10 (2U) /* Temperature sensor */
-#define ADC10_CTL1_INCH_11 (3U) /* (VCC � VSS) / 2 */
-#define ADC10_CTL1_INCH_12 (4U) /* (VCC � VSS) / 2, A12 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
-#define ADC10_CTL1_INCH_13 (5U) /* (VCC � VSS) / 2, A13 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
-#define ADC10_CTL1_INCH_14 (6U) /* (VCC � VSS) / 2, A14 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
-#define ADC10_CTL1_INCH_15 (7U) /* (VCC � VSS) / 2, A15 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
+#define ADC10_CTL1_INCH_A0            (00U) /* Input channel select: A0 */
+#define ADC10_CTL1_INCH_A1            (01U) /* Input channel select: A1 */
+#define ADC10_CTL1_INCH_A2            (02U) /* Input channel select: A2 */
+#define ADC10_CTL1_INCH_A3            (03U) /* Input channel select: A3 */
+#define ADC10_CTL1_INCH_A4            (04U) /* Input channel select: A4 */
+#define ADC10_CTL1_INCH_A5            (05U) /* Input channel select: A5 */
+#define ADC10_CTL1_INCH_A6            (06U) /* Input channel select: A6 */
+#define ADC10_CTL1_INCH_A7            (07U) /* Input channel select: A7 */
+#define ADC10_CTL1_INCH_VEREF         (08U) /* Input channel select: VeREF+ */
+#define ADC10_CTL1_INCH_VREF_MINUS    (09U) /* Input channel select: VREF-/VeREF- */
+#define ADC10_CTL1_INCH_TEMPERATURE   (10U) /* Input channel select: Temperature sensor */
+#define ADC10_CTL1_INCH_VCC_VSS_HALF  (11U) /* Input channel select: (VCC - VSS) / 2 */
+#define ADC10_CTL1_INCH_VCC_VSS_HALF2 (12U) /* Input channel select: (VCC - VSS) / 2, A12 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
+#define ADC10_CTL1_INCH_VCC_VSS_HALF3 (13U) /* Input channel select: (VCC - VSS) / 2, A13 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
+#define ADC10_CTL1_INCH_VCC_VSS_HALF4 (14U) /* Input channel select: (VCC - VSS) / 2, A14 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
+#define ADC10_CTL1_INCH_VCC_VSS_HALF5 (15U) /* Input channel select: (VCC - VSS) / 2, A15 on MSP430F22xx, MSP430G2x44, and MSP430G2x55 devices */
+
+/* ADC10_CTL1_DIV */
+#define ADC10_CTL1_DIV_1 (00U) /* ADC10 clock divider: 1 */
+#define ADC10_CTL1_DIV_2 (01U) /* ADC10 clock divider: 2 */
+#define ADC10_CTL1_DIV_3 (02U) /* ADC10 clock divider: 3 */
+#define ADC10_CTL1_DIV_4 (03U) /* ADC10 clock divider: 4 */
+#define ADC10_CTL1_DIV_5 (04U) /* ADC10 clock divider: 5 */
+#define ADC10_CTL1_DIV_6 (05U) /* ADC10 clock divider: 6 */
+#define ADC10_CTL1_DIV_7 (06U) /* ADC10 clock divider: 7 */
+#define ADC10_CTL1_DIV_8 (07U) /* ADC10 clock divider: 8 */
 
 /* ADC10_CTL1_SHS */
-#define ADC10_CTL1_SHS_0 (0U) /* ADC10SC bit */
-#define ADC10_CTL1_SHS_1 (1U) /* Timer_A.OUT1 */
-#define ADC10_CTL1_SHS_2 (2U) /* Timer_A.OUT0 */
-#define ADC10_CTL1_SHS_3 (3U) /* Timer_A.OUT2 (Timer_A.OUT1 on MSP430F20x0, MSP430G2x31, and MSP430G2x30 devices) */
+#define ADC10_CTL1_SHS_SC      (0U) /* Sample-and-hold source select: ADC10SC bit */
+#define ADC10_CTL1_SHS_TA_OUT1 (1U) /* Sample-and-hold source select: Timer_A.OUT1 */
+#define ADC10_CTL1_SHS_TA_OUT0 (2U) /* Sample-and-hold source select: Timer_A.OUT0 */
+#define ADC10_CTL1_SHS_TA_OUT2 (3U) /* Sample-and-hold source select: Timer_A.OUT2 (Timer_A.OUT1 on MSP430F20x0, MSP430G2x31, and MSP430G2x30 devices) */
 
 /* ADC10_CTL1_SSEL */
-#define ADC10_CTL1_SSEL_0 (0U) /* ADC10OSC */
-#define ADC10_CTL1_SSEL_1 (1U) /* ACLK */
-#define ADC10_CTL1_SSEL_2 (2U) /* MCLK */
-#define ADC10_CTL1_SSEL_3 (3U) /* SMCLK */
+#define ADC10_CTL1_SSEL_ADC10OSC (0U) /* ADC10 clock source select: ADC10OSC */
+#define ADC10_CTL1_SSEL_ACLK     (1U) /* ADC10 clock source select: ACLK */
+#define ADC10_CTL1_SSEL_MCLK     (2U) /* ADC10 clock source select: MCLK */
+#define ADC10_CTL1_SSEL_SMCLK    (3U) /* ADC10 clock source select: SMCLK */
 
 /* ADC10_CTL1_CONSEQ */
-#define ADC10_CTL1_CONSEQ_0 (0U) /* Single-channel single-conversion mode */
-#define ADC10_CTL1_CONSEQ_1 (1U) /* Sequence-of-channels mode */
-#define ADC10_CTL1_CONSEQ_2 (2U) /* Repeat-single-channel mode */
-#define ADC10_CTL1_CONSEQ_3 (3U) /* Repeat-sequence-of-channels mode */
+#define ADC10_CTL1_CONSEQ_SINGLE          (0U) /* Conversion sequence mode select: Single-channel single-conversion mode */
+#define ADC10_CTL1_CONSEQ_SEQUENCE        (1U) /* Conversion sequence mode select: Sequence-of-channels mode */
+#define ADC10_CTL1_CONSEQ_REPEAT_SINGLE   (2U) /* Conversion sequence mode select: Repeat-single-channel mode */
+#define ADC10_CTL1_CONSEQ_REPEAT_SEQUENCE (3U) /* Conversion sequence mode select: Repeat-sequence-of-channels mode */
 
 /*****************************************************************************
  * @brief: ADC10_MEM
@@ -917,7 +902,7 @@ typedef struct
 #define BCS_DCOCTL_MOD_SHIFT (0x00U)
 /* Modulator selection. These bits define how often the fDCO+1
   frequency is used within a period of 32 DCOCLK cycles. During the
-  remaining clock cycles (32 � MOD) the fDCO frequency is used. Not
+  remaining clock cycles (32  MOD) the fDCO frequency is used. Not
   useable when DCOx = 7. */
 #define BCS_DCOCTL_MOD(x)    (((uint8_t)(((uint8_t)(x)) << BCS_DCOCTL_MOD_SHIFT)) & BCS_DCOCTL_MOD_MASK)
 
@@ -966,6 +951,12 @@ typedef struct
 /* BCS_CTL1_XTS */
 #define BCS_CTL1_XTS_LOW_FREQ (0U) /* Low-frequency mode */
 #define BCS_CTL1_XTS_HI_FREQ  (1U) /* High-frequency mode */
+
+/* BCS_CTL1_DIVA */
+#define BCS_CTL1_DIVA_1 (0U) /* Divider for ACLK: 1 */
+#define BCS_CTL1_DIVA_2 (1U) /* Divider for ACLK: 2 */
+#define BCS_CTL1_DIVA_4 (2U) /* Divider for ACLK: 4 */
+#define BCS_CTL1_DIVA_8 (3U) /* Divider for ACLK: 8 */
 
 /*****************************************************************************
 * @brief: BCS_CTL2
@@ -1019,10 +1010,22 @@ typedef struct
 #define BCS_CTL2_DCOR(x)    (((uint8_t)(((uint8_t)(x)) << BCS_CTL2_DCOR_SHIFT)) & BCS_CTL2_DCOR_MASK)
 
 /* BCS_CTL2_SELM */
-#define BCS_CTL2_SELM_0 (0U) /* DCOCLK */
-#define BCS_CTL2_SELM_1 (1U) /* DCOCLK */
-#define BCS_CTL2_SELM_2 (2U) /* XT2CLK when XT2 oscillator present on-chip. LFXT1CLK or VLOCLK when XT2 oscillator not present on-chip. */
-#define BCS_CTL2_SELM_3 (3U) /* LFXT1CLK or VLOCLK */
+#define BCS_CTL2_SELM_DCOCLK          (0U) /* Select MCLK source: DCOCLK */
+#define BCS_CTL2_SELM_DCOCLK2         (1U) /* Select MCLK source: DCOCLK */
+#define BCS_CTL2_SELM_XT2CLK_LFXT1CLK (2U) /* Select MCLK source: XT2CLK when XT2 oscillator present on-chip. LFXT1CLK or VLOCLK when XT2 oscillator not present on-chip. */
+#define BCS_CTL2_SELM_LFXT1CLK_VLOCLK (3U) /* Select MCLK source: LFXT1CLK or VLOCLK */
+
+/* BCS_CTL2_DIVM */
+#define BCS_CTL2_DIVM_1 (0U) /* Divider for MCLK: 1 */
+#define BCS_CTL2_DIVM_2 (1U) /* Divider for MCLK: 2 */
+#define BCS_CTL2_DIVM_4 (2U) /* Divider for MCLK: 4 */
+#define BCS_CTL2_DIVM_8 (3U) /* Divider for MCLK: 8 */
+
+/* BCS_CTL2_DIVS */
+#define BCS_CTL2_DIVS_1 (0U) /* Divider for SMCLK: 1 */
+#define BCS_CTL2_DIVS_2 (1U) /* Divider for SMCLK: 2 */
+#define BCS_CTL2_DIVS_4 (2U) /* Divider for SMCLK: 4 */
+#define BCS_CTL2_DIVS_8 (3U) /* Divider for SMCLK: 8 */
 
 /*****************************************************************************
 * @brief: BCS_CTL3
@@ -1100,16 +1103,16 @@ typedef struct
 #define BCS_CTL3_LFXT1OF(x)    (((uint8_t)(((uint8_t)(x)) << BCS_CTL3_LFXT1OF_SHIFT)) & BCS_CTL3_LFXT1OF_MASK)
 
 /* BCS_CTL3_XT2S */
-#define BCS_CTL3_XT2S_0 (0U) /* 0.4- to 1-MHz crystal or resonator */
-#define BCS_CTL3_XT2S_1 (1U) /* 1- to 3-MHz crystal or resonator */
-#define BCS_CTL3_XT2S_2 (2U) /* 3- to 16-MHz crystal or resonator */
-#define BCS_CTL3_XT2S_3 (3U) /* Digital external 0.4- to 16-MHz clock source */
+#define BCS_CTL3_XT2S_04_1MHZ (0U) /* XT2 range select: 0.4- to 1-MHz crystal or resonator */
+#define BCS_CTL3_XT2S_1_3MHZ  (1U) /* XT2 range select: 1- to 3-MHz crystal or resonator */
+#define BCS_CTL3_XT2S_3_16MHZ (2U) /* XT2 range select: 3- to 16-MHz crystal or resonator */
+#define BCS_CTL3_XT2S_EXT     (3U) /* XT2 range select: Digital external 0.4- to 16-MHz clock source */
 
 /* BCS_CTL3_XCAP */
-#define BCS_CTL3_XCAP_0 (0U) /* Approximately 1 pF */
-#define BCS_CTL3_XCAP_1 (1U) /* Approximately 6 pF */
-#define BCS_CTL3_XCAP_2 (2U) /* Approximately 10 pF */
-#define BCS_CTL3_XCAP_3 (3U) /* Approximately 12.5 pF */
+#define BCS_CTL3_XCAP_1PF  (0U) /* Oscillator capacitor selection: 1 pF */
+#define BCS_CTL3_XCAP_6PF  (1U) /* Oscillator capacitor selection: 6 pF */
+#define BCS_CTL3_XCAP_10PF (2U) /* Oscillator capacitor selection: 10 pF */
+#define BCS_CTL3_XCAP_12PF (3U) /* Oscillator capacitor selection: 12.5 pF */
 
 /*****************************************************************************
 * @brief: CA_CTL1
@@ -1175,10 +1178,10 @@ typedef struct
 #define CA_CTL1_CAEX(x)    (((uint8_t)(((uint8_t)(x)) << CA_CTL1_CAEX_SHIFT)) & CA_CTL1_CAEX_MASK)
 
 /* CA_CTL1_CAREF */
-#define CA_CTL1_CAREF_0    (0U) /* Internal reference off. An external reference can be applied. */
-#define CA_CTL1_CAREF_1    (1U) /* 0.25 ? VCC */
-#define CA_CTL1_CAREF_2   (2U)  /* 0.50 ? VCC */
-#define CA_CTL1_CAREF_3 (3U) /* Diode reference is selected */
+#define CA_CTL1_CAREF_INTERNAL (0U) /* Comparator_A+ reference: Internal reference off. An external reference can be applied. */
+#define CA_CTL1_CAREF_0_25_VCC (1U) /* Comparator_A+ reference: 0.25*VCC */
+#define CA_CTL1_CAREF_0_5_VCC  (2U) /* Comparator_A+ reference: 0.50*VCC */
+#define CA_CTL1_CAREF_DIOIDE   (3U) /* Comparator_A+ reference: Diode reference is selected */
 
 /*****************************************************************************
 * @brief: CA_CTL2
@@ -1224,20 +1227,20 @@ typedef struct
 #define CA_CTL2_CASHORT(x)    (((uint8_t)(((uint8_t)(x)) << CA_CTL2_CASHORT_SHIFT)) & CA_CTL2_CASHORT_MASK)
 
 /* CA_CTL2_P2CA0 */
-#define CA_CTL2_P2CA0_0 (0U) /* No connection */
-#define CA_CTL2_P2CA0_1 (1U) /* CA0 */
-#define CA_CTL2_P2CA0_2 (2U) /* CA1 */
-#define CA_CTL2_P2CA0_3 (3U) /* CA2 */
+#define CA_CTL2_P2CA0_NO_CONNECTION (00U) /* Input select: No connection */
+#define CA_CTL2_P2CA0_CA0           (01U) /* Input select: CA0 */
+#define CA_CTL2_P2CA0_CA1           (16U) /* Input select: CA1 */
+#define CA_CTL2_P2CA0_CA2           (17U) /* Input select: CA2 */
 
 /* CA_CTL2_P2CA1 */
-#define CA_CTL2_P2CA1_0 (0U) /* No connection */
-#define CA_CTL2_P2CA1_1 (1U) /* CA1 */
-#define CA_CTL2_P2CA1_2 (2U) /* CA2 */
-#define CA_CTL2_P2CA1_3 (3U) /* CA3 */
-#define CA_CTL2_P2CA1_4 (4U) /* CA4 */
-#define CA_CTL2_P2CA1_5 (5U) /* CA5 */
-#define CA_CTL2_P2CA1_6 (6U) /* CA6 */
-#define CA_CTL2_P2CA1_7 (7U) /* CA7 */
+#define CA_CTL2_P2CA1_NO_CONNECTION (0U) /* Input select: No connection */
+#define CA_CTL2_P2CA1_CA1           (1U) /* Input select: CA1 */
+#define CA_CTL2_P2CA1_CA2           (2U) /* Input select: CA2 */
+#define CA_CTL2_P2CA1_CA3           (3U) /* Input select: CA3 */
+#define CA_CTL2_P2CA1_CA4           (4U) /* Input select: CA4 */
+#define CA_CTL2_P2CA1_CA5           (5U) /* Input select: CA5 */
+#define CA_CTL2_P2CA1_CA6           (6U) /* Input select: CA6 */
+#define CA_CTL2_P2CA1_CA7           (7U) /* Input select: CA7 */
 
 /*****************************************************************************
 * @brief: CA_PD
@@ -1413,6 +1416,12 @@ typedef struct
   when FNx = 00h, the divisor is 1. When FNx = 03Fh, the divisor is 64. */
 #define FLASH_CTL2_FN(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL2_FN_SHIFT)) & FLASH_CTL2_FN_MASK)
 
+/* FLASH_CTL2_FSSEL */
+#define FLASH_CTL2_FSSEL_ACLK   (0U) /* Flash controller clock source select: ACLK */
+#define FLASH_CTL2_FSSEL_MCLK   (1U) /* Flash controller clock source select: MCLK */
+#define FLASH_CTL2_FSSEL_SMCLK  (2U) /* Flash controller clock source select: SMCLK */
+#define FLASH_CTL2_FSSEL_SMCLK2 (3U) /* Flash controller clock source select: SMCLK */
+
 /*****************************************************************************
 * @brief: FLASH_CTL3
 *****************************************************************************/
@@ -1501,39 +1510,6 @@ typedef struct
 #define FLASH_CTL3_BUSY(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL3_BUSY_SHIFT)) & FLASH_CTL3_BUSY_MASK)
 
 /*****************************************************************************
-* @brief: FLASH_CTL4
-*****************************************************************************/
-
-/* FLASH_CTL4_FWKEY */
-#define FLASH_CTL4_FWKEY_MASK  (0xff00U)
-#define FLASH_CTL4_FWKEY_SHIFT (0x8U)
-/* FLASH_CTLx password. Always reads as 096h. Must be written as 0A5h.
-  Writing any other value generates a PUC. */
-#define FLASH_CTL4_FWKEY(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL4_FWKEY_SHIFT)) & FLASH_CTL4_FWKEY_MASK)
-
-/* FLASH_CTL4_MRG1 */
-#define FLASH_CTL4_MRG1_MASK  (0x20U)
-#define FLASH_CTL4_MRG1_SHIFT (0x5U)
-/* Marginal read 1 mode. This bit enables the marginal 1 read mode.
-  The marginal read 1 bit is cleared if the CPU starts execution from
-  the flash memory. If both MRG1 and MRG0 are set, MRG1 is active
-  and MRG0 is ignored.
-  0b = Marginal 1 read mode is disabled.
-  1b = Marginal 1 read mode is enabled. */
-#define FLASH_CTL4_MRG1(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL4_MRG1_SHIFT)) & FLASH_CTL4_MRG1_MASK)
-
-/* FLASH_CTL4_MRG0 */
-#define FLASH_CTL4_MRG0_MASK  (0x10U)
-#define FLASH_CTL4_MRG0_SHIFT (0x4U)
-/* Marginal read 0 mode. This bit enables the marginal 0 read mode.
-  The marginal mode 0 is cleared if the CPU starts execution from the
-  flash memory. If both MRG1 and MRG0 are set, MRG1 is active and
-  MRG0 is ignored.
-  0b = Marginal 0 read mode is disabled.
-  1b = Marginal 0 read mode is enabled. */
-#define FLASH_CTL4_MRG0(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL4_MRG0_SHIFT)) & FLASH_CTL4_MRG0_MASK)
-
-/*****************************************************************************
 * @brief: TA_CTL
 *****************************************************************************/
 
@@ -1592,20 +1568,20 @@ typedef struct
   1b = Interrupt pending */
 #define TA_CTL_TAIFG(x)    (((uint16_t)(((uint16_t)(x)) << TA_CTL_TAIFG_SHIFT)) & TA_CTL_TAIFG_MASK)
 
-#define TA_CTL_MC_0 (0*0x10u)  /* Timer A mode control: 0 - Stop */
-#define TA_CTL_MC_1 (1*0x10u)  /* Timer A mode control: 1 - Up to CCR0 */
-#define TA_CTL_MC_2 (2*0x10u)  /* Timer A mode control: 2 - Continous up */
-#define TA_CTL_MC_3 (3*0x10u)  /* Timer A mode control: 3 - Up/Down */
+#define TA_CTL_MC_STOP     (0U) /* Timer A mode control: Stop */
+#define TA_CTL_MC_UPTOCCR0 (1U) /* Timer A mode control: Up to CCR0 */
+#define TA_CTL_MC_CONT     (2U) /* Timer A mode control: Continous up */
+#define TA_CTL_MC_UPDOWN   (3U) /* Timer A mode control: Up/Down */
 
-#define TA_CTL_ID_0 (0*0x40u)  /* Timer A input divider: 0 - /1 */
-#define TA_CTL_ID_1 (1*0x40u)  /* Timer A input divider: 1 - /2 */
-#define TA_CTL_ID_2 (2*0x40u)  /* Timer A input divider: 2 - /4 */
-#define TA_CTL_ID_3 (3*0x40u)  /* Timer A input divider: 3 - /8 */
+#define TA_CTL_ID_1 (0U) /* Timer A input divider: 1 */
+#define TA_CTL_ID_2 (1U) /* Timer A input divider: 2 */
+#define TA_CTL_ID_4 (2U) /* Timer A input divider: 4 */
+#define TA_CTL_ID_8 (3U) /* Timer A input divider: 8 */
 
-#define TA_CTL_TASSEL_0 (0*0x100u) /* Timer A clock source select: 0 - TACLK */
-#define TA_CTL_TASSEL_1 (1*0x100u) /* Timer A clock source select: 1 - ACLK  */
-#define TA_CTL_TASSEL_2 (2*0x100u) /* Timer A clock source select: 2 - SMCLK */
-#define TA_CTL_TASSEL_3 (3*0x100u) /* Timer A clock source select: 3 - INCLK */
+#define TA_CTL_TASSEL_TACLK (0*0x100u) /* Timer A clock source select: TACLK */
+#define TA_CTL_TASSEL_ACLK  (1*0x100u) /* Timer A clock source select: ACLK  */
+#define TA_CTL_TASSEL_SMCLK (2*0x100u) /* Timer A clock source select: SMCLK */
+#define TA_CTL_TASSEL_INCLK (3*0x100u) /* Timer A clock source select: INCLK */
 
 /*****************************************************************************
 * @brief: TA_CCTL
@@ -1710,29 +1686,31 @@ is latched with the EQUx signal and can be read via this bit */
   1b = Interrupt pending */
 #define TA_CCTL_CCIFG(x)    (((uint16_t)(((uint16_t)(x)) << TA_CCTL_CCIFG_SHIFT)) & TA_CCTL_CCIFG_MASK)
 
-#define TA_CCTL_OUTMOD_0 (0*0x20u)  /* PWM output mode: 0 - output only */
-#define TA_CCTL_OUTMOD_1 (1*0x20u)  /* PWM output mode: 1 - set */
-#define TA_CCTL_OUTMOD_2 (2*0x20u)  /* PWM output mode: 2 - PWM toggle/reset */
-#define TA_CCTL_OUTMOD_3 (3*0x20u)  /* PWM output mode: 3 - PWM set/reset */
-#define TA_CCTL_OUTMOD_4 (4*0x20u)  /* PWM output mode: 4 - toggle */
-#define TA_CCTL_OUTMOD_5 (5*0x20u)  /* PWM output mode: 5 - Reset */
-#define TA_CCTL_OUTMOD_6 (6*0x20u)  /* PWM output mode: 6 - PWM toggle/set */
-#define TA_CCTL_OUTMOD_7 (7*0x20u)  /* PWM output mode: 7 - PWM reset/set */
-#define TA_CCTL_CCIS_0   (0*0x1000u) /* Capture input select: 0 - CCIxA */
-#define TA_CCTL_CCIS_1   (1*0x1000u) /* Capture input select: 1 - CCIxB */
-#define TA_CCTL_CCIS_2   (2*0x1000u) /* Capture input select: 2 - GND */
-#define TA_CCTL_CCIS_3   (3*0x1000u) /* Capture input select: 3 - Vcc */
-#define TA_CCTL_CM_0     (0*0x4000u) /* Capture mode: 0 - disabled */
-#define TA_CCTL_CM_1     (1*0x4000u) /* Capture mode: 1 - pos. edge */
-#define TA_CCTL_CM_2     (2*0x4000u) /* Capture mode: 1 - neg. edge */
-#define TA_CCTL_CM_3     (3*0x4000u) /* Capture mode: 1 - both edges */
+#define TA_CCTL_OUTMOD_OUT              (0U) /* PWM output mode: 0 - output only */
+#define TA_CCTL_OUTMOD_SET              (1U) /* PWM output mode: 1 - set */
+#define TA_CCTL_OUTMOD_PWM_TOGGLE_RESET (2U) /* PWM output mode: 2 - PWM toggle/reset */
+#define TA_CCTL_OUTMOD_PWM_SET_RESET    (3U) /* PWM output mode: 3 - PWM set/reset */
+#define TA_CCTL_OUTMOD_TOGGLE           (4U) /* PWM output mode: 4 - toggle */
+#define TA_CCTL_OUTMOD_RESET            (5U) /* PWM output mode: 5 - Reset */
+#define TA_CCTL_OUTMOD_PWM_TOGGLE_SET   (6U) /* PWM output mode: 6 - PWM toggle/set */
+#define TA_CCTL_OUTMOD_PWM_RESET_SET    (7U) /* PWM output mode: 7 - PWM reset/set */
 
-#define TAIV_NONE   (0x0000u) /* No Interrupt pending */
-#define TAIV_TACCR1 (0x0002u) /* TA0CCR1_CCIFG */
-#define TAIV_TACCR2 (0x0004u) /* TA0CCR2_CCIFG */
-#define TAIV_6      (0x0006u) /* Reserved */
-#define TAIV_8      (0x0008u) /* Reserved */
-#define TAIV_TAIFG  (0x000Au) /* TA0IFG */
+#define TA_CCTL_CCIS_CCIXA (0U) /* Capture input select: 0 - CCIxA */
+#define TA_CCTL_CCIS_CCIXB (1U) /* Capture input select: 1 - CCIxB */
+#define TA_CCTL_CCIS_GND   (2U) /* Capture input select: 2 - GND */
+#define TA_CCTL_CCIS_VCC   (3U) /* Capture input select: 3 - Vcc */
+
+#define TA_CCTL_CM_DISABLED (0U) /* Capture mode: 0 - disabled */
+#define TA_CCTL_CM_RISING   (1U) /* Capture mode: 1 - pos. edge */
+#define TA_CCTL_CM_FALLING  (2U) /* Capture mode: 1 - neg. edge */
+#define TA_CCTL_CM_BOTH     (3U) /* Capture mode: 1 - both edges */
+
+#define TAIV_NONE   (00U) /* No Interrupt pending */
+#define TAIV_TACCR1 (02U) /* TA0CCR1_CCIFG */
+#define TAIV_TACCR2 (04U) /* TA0CCR2_CCIFG */
+#define TAIV_6      (06U) /* Reserved */
+#define TAIV_8      (08U) /* Reserved */
+#define TAIV_TAIFG  (10U) /* TA0IFG */
 
 /*****************************************************************************
 * @brief: USCI_UART_CTL0
@@ -1797,6 +1775,11 @@ is latched with the EQUx signal and can be read via this bit */
   0b = Asynchronous mode
   1b = Synchronous mode */
 #define USCI_UART_CTL0_UCSYNC(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_CTL0_UCSYNC_SHIFT)) & USCI_UART_CTL0_UCSYNC_MASK)
+
+#define USCI_UART_CTL0_UCMODE_UART        (0U) /* USCI mode: UART mode */
+#define USCI_UART_CTL0_UCMODE_IDLE_LINE   (1U) /* USCI mode: Idle-line multiprocessor mode */
+#define USCI_UART_CTL0_UCMODE_ADDRESS_BIT (2U) /* USCI mode: Address-bit multiprocessor mode */
+#define USCI_UART_CTL0_UCMODE_UART_AUTO   (3U) /* USCI mode: UART mode with automatic baud rate detection */
 
 /*****************************************************************************
 * @brief: USCI_UART_CTL1
@@ -1866,6 +1849,11 @@ is latched with the EQUx signal and can be read via this bit */
   0b = Disabled. USCI reset released for operation.
   1b = Enabled. USCI logic held in reset state. */
 #define USCI_UART_CTL1_UCSWRST(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_CTL1_UCSWRST_SHIFT)) & USCI_UART_CTL1_UCSWRST_MASK)
+
+#define USCI_UART_CTL1_UCSSEL_UCLK   (0U) /* USCI clock source select: UCLK */
+#define USCI_UART_CTL1_UCSSEL_ACLK   (1U) /* USCI clock source select: ACLK */
+#define USCI_UART_CTL1_UCSSEL_SMCLK  (2U) /* USCI clock source select: SMCLK */
+#define USCI_UART_CTL1_UCSSEL_SMCLK2 (3U) /* USCI clock source select: SMCLK */
 
 /*****************************************************************************
 * @brief: USCI_UART_MCTL
@@ -2115,12 +2103,8 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 /* USCI mode. The UCMODEx bits select the synchronous mode when
   UCSYNC = 1.
   00b = 3-pin SPI
-  01b = 4-pin SPI with UCxSTE active high: slave enabled when
-
-  UCxSTE = 1
-  10b = 4-pin SPI with UCxSTE active low: slave enabled when
-
-  UCxSTE = 0
+  01b = 4-pin SPI with UCxSTE active high: slave enabled when UCxSTE = 1
+  10b = 4-pin SPI with UCxSTE active low: slave enabled when UCxSTE = 0
   11b = I2C mode */
 #define USCI_SPI_CTL0_UCMODE(x)    (((uint8_t)(((uint8_t)(x)) << USCI_SPI_CTL0_UCMODE_SHIFT)) & USCI_SPI_CTL0_UCMODE_MASK)
 
@@ -2131,6 +2115,11 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
   0b = Asynchronous mode
   1b = Synchronous mode */
 #define USCI_SPI_CTL0_UCSYNC(x)    (((uint8_t)(((uint8_t)(x)) << USCI_SPI_CTL0_UCSYNC_SHIFT)) & USCI_SPI_CTL0_UCSYNC_MASK)
+
+#define USCI_SPI_CTL0_UCMODE_3PIN_SPI    (0U) /* USCI mode: 3-pin SPI */
+#define USCI_SPI_CTL0_UCMODE_4PIN_SPI_AH (1U) /* USCI mode: 4-pin SPI with UCxSTE active high: slave enabled when UCxSTE = 1 */
+#define USCI_SPI_CTL0_UCMODE_4PIN_SPI_AL (2U) /* USCI mode: 4-pin SPI with UCxSTE active low: slave enabled when UCxSTE = 0 */
+#define USCI_SPI_CTL0_UCMODE_I2C         (3U) /* USCI mode: I2C mode */
 
 /*****************************************************************************
 * @brief: UCSI_SPI_CTL1
@@ -2154,6 +2143,11 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
   0b = Disabled. USCI reset released for operation.
   1b = Enabled. USCI logic held in reset state. */
 #define UCSI_SPI_CTL1_UCSWRST(x)    (((uint8_t)(((uint8_t)(x)) << UCSI_SPI_CTL1_UCSWRST_SHIFT)) & UCSI_SPI_CTL1_UCSWRST_MASK)
+
+#define USCI_SPI_CTL1_UCSSEL_RESERVED (0U) /* USCI clock source select: Reserved */
+#define USCI_SPI_CTL1_UCSSEL_ACLK     (1U) /* USCI clock source select: ACLK */
+#define USCI_SPI_CTL1_UCSSEL_SMCLK    (2U) /* USCI clock source select: SMCLK */
+#define USCI_SPI_CTL1_UCSSEL_SMCLK2   (3U) /* USCI clock source select: SMCLKs */
 
 /*****************************************************************************
 * @brief: UCSI_SPI_STAT
@@ -2252,6 +2246,11 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
   1b = Synchronous mode */
 #define USCI_I2C_CTL0_UCSYNC(x)    (((uint8_t)(((uint8_t)(x)) << USCI_I2C_CTL0_UCSYNC_SHIFT)) & USCI_I2C_CTL0_UCSYNC_MASK)
 
+#define USCI_I2C_CTL0_UCMODE_3PIN_SPI    (0U) /* USCI mode: 3-pin SPI */
+#define USCI_I2C_CTL0_UCMODE_4PIN_SPI_AH (1U) /* USCI mode: 4-pin SPI with UCxSTE active high: slave enabled when UCxSTE = 1 */
+#define USCI_I2C_CTL0_UCMODE_4PIN_SPI_AL (2U) /* USCI mode: 4-pin SPI with UCxSTE active low: slave enabled when UCxSTE = 0 */
+#define USCI_I2C_CTL0_UCMODE_I2C         (3U) /* USCI mode: I2C mode */
+
 /*****************************************************************************
 * @brief: UCSI_I2C_CTL1
 *****************************************************************************/
@@ -2310,6 +2309,11 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
   0b = Disabled. USCI reset released for operation.
   1b = Enabled. USCI logic held in reset state. */
 #define UCSI_I2C_CTL1_UCSWRST(x)    (((uint8_t)(((uint8_t)(x)) << UCSI_I2C_CTL1_UCSWRST_SHIFT)) & UCSI_I2C_CTL1_UCSWRST_MASK)
+
+#define USCI_I2C_CTL1_UCSSEL_UCLKI    (0U) /* USCI clock source select: UCLKI */
+#define USCI_I2C_CTL1_UCSSEL_ACLK     (1U) /* USCI clock source select: ACLK */
+#define USCI_I2C_CTL1_UCSSEL_SMCLK    (2U) /* USCI clock source select: SMCLK */
+#define USCI_I2C_CTL1_UCSSEL_SMCLK2   (3U) /* USCI clock source select: SMCLKs */
 
 /*****************************************************************************
 * @brief: UCSI_I2C_STAT
@@ -2480,16 +2484,14 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
   11b = Watchdog clock source /64 */
 #define WDT_CTL_WDTIS(x)    (((uint16_t)(((uint16_t)(x)) << WDT_CTL_WDTIS_SHIFT)) & WDT_CTL_WDTIS_MASK)
 
-enum {
-  WDTIS0          = 0x0001,
-  WDTIS1          = 0x0002,
-  WDTSSEL         = 0x0004,
-  WDTCNTCL        = 0x0008,
-  WDTTMSEL        = 0x0010,
-  WDTNMI          = 0x0020,
-  WDTNMIES        = 0x0040,
-  WDTHOLD         = 0x0080
-};
+#define WDTIS0   (0x0001)
+#define WDTIS1   (0x0002)
+#define WDTSSEL  (0x0004)
+#define WDTCNTCL (0x0008)
+#define WDTTMSEL (0x0010)
+#define WDTNMI   (0x0020)
+#define WDTNMIES (0x0040)
+#define WDTHOLD  (0x0080)
 
 #define WDTPW               (0x5A00u)
 /* WDT is clocked by fSMCLK (assumed 1MHz) */
