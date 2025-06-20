@@ -2,7 +2,7 @@
  * @file msp430g2553.h
  * @author Dmitrii Rubtsov (immensus.genuine@gmail.com)
  * @brief Header file compatible with VS Code
- * @version 0.4
+ * @version 0.5
  * @date 2025-06-19
  *
  * @copyright Copyright (c) 2025
@@ -92,7 +92,7 @@ typedef struct
     __READ uint16_t     RESERVED_1[4];       /* Empty block */
     __READ uint8_t      TAG_4;               /* Tag DCO block */
     __READ uint8_t      LENGTH_4;            /* Length DCO block */
-    __READ TLV_BCS_Type CAL_BCS[4];          /* BCS Cal. */
+    __READ TLV_BCS_Type CAL_BCS[4];          /* BCS Cal. values */
 } TLV_Type;
 #pragma pack(pop)
 
@@ -100,6 +100,11 @@ typedef struct
 #define TLV            ((TLV_Type *)TLV_BASE)
 #define TLV_BASE_ADDRS {TLV_BASE}
 #define TLV_BASE_PTRS  {TLV}
+
+#define TLV_BCS_CLK_16M (0U) /* Basic Clock Module+ calibration values: 16MHz */
+#define TLV_BCS_CLK_12M (1U) /* Basic Clock Module+ calibration values: 12MHz */
+#define TLV_BCS_CLK_8M  (2U) /* Basic Clock Module+ calibration values: 8MHz */
+#define TLV_BCS_CLK_1M  (3U) /* Basic Clock Module+ calibration values: 1MHz */
 
 /*****************************************************************************
 * @brief: Special Function
