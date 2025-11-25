@@ -2,8 +2,8 @@
  * @file msp430g2553.h
  * @author Dmitrii Rubtsov (immensus.genuine@gmail.com)
  * @brief Header file compatible with VS Code
- * @version 0.5
- * @date 2025-06-19
+ * @version 0.6
+ * @date 2025-06-27
  *
  * @copyright Copyright (c) 2025
  *
@@ -23,7 +23,7 @@
 #endif
 
 /*****************************************************************************
-* @brief: Status register bits
+* @brief Status register bits
 *****************************************************************************/
 
 #define C      (0x0001)
@@ -57,9 +57,15 @@
 #define LPM4_EXIT __bic_SR_register_on_exit(LPM4_bits) /* Exit Low Power Mode 4 */
 
 /*****************************************************************************
-* @brief: Calibration Data
+* @brief Calibration Data
 *****************************************************************************/
 /* clang-format on */
+
+#define TLV_BCS_CLK_16M    (0U) /* Basic Clock Module+ cal. values: 16MHz */
+#define TLV_BCS_CLK_12M    (1U) /* Basic Clock Module+ cal. values: 12MHz */
+#define TLV_BCS_CLK_8M     (2U) /* Basic Clock Module+ cal. values: 8MHz */
+#define TLV_BCS_CLK_1M     (3U) /* Basic Clock Module+ cal. values: 1MHz */
+#define TLV_BCS_CLK_NUMBER (4U) /* Calibration values number */
 
 typedef struct
 {
@@ -70,7 +76,7 @@ typedef struct
 
 typedef struct
 {
-    __READ uint8_t DCO;     /* DCO value */
+    __READ uint8_t DCOCTL;  /* DCO value */
     __READ uint8_t BCSCTL1; /* BCS CTL1 value */
 } TLV_BCS_Type;
 
@@ -92,7 +98,7 @@ typedef struct
     __READ uint16_t     RESERVED_1[4];       /* Empty block */
     __READ uint8_t      TAG_4;               /* Tag DCO block */
     __READ uint8_t      LENGTH_4;            /* Length DCO block */
-    __READ TLV_BCS_Type CAL_BCS[4];          /* BCS Cal. values */
+    __READ TLV_BCS_Type CAL_BCS[TLV_BCS_CLK_NUMBER]; /* BCS Cal. values */
 } TLV_Type;
 #pragma pack(pop)
 
@@ -101,13 +107,8 @@ typedef struct
 #define TLV_BASE_ADDRS {TLV_BASE}
 #define TLV_BASE_PTRS  {TLV}
 
-#define TLV_BCS_CLK_16M (0U) /* Basic Clock Module+ calibration values: 16MHz */
-#define TLV_BCS_CLK_12M (1U) /* Basic Clock Module+ calibration values: 12MHz */
-#define TLV_BCS_CLK_8M  (2U) /* Basic Clock Module+ calibration values: 8MHz */
-#define TLV_BCS_CLK_1M  (3U) /* Basic Clock Module+ calibration values: 1MHz */
-
 /*****************************************************************************
-* @brief: Special Function
+* @brief Special Function
 *****************************************************************************/
 
 typedef struct
@@ -124,7 +125,7 @@ typedef struct
 #define SFR_BASE_PTRS  {SFR}
 
 /*****************************************************************************
-* @brief: ADC10
+* @brief ADC10
 *****************************************************************************/
 
 typedef struct
@@ -146,7 +147,7 @@ typedef struct
 #define ADC10_BASE_PTRS  {ADC10}
 
 /*****************************************************************************
-* @brief: System Clock
+* @brief System Clock
 *****************************************************************************/
 
 typedef struct
@@ -164,7 +165,7 @@ typedef struct
 #define BCS_BASE_PTRS  {BCS}
 
 /*****************************************************************************
-* @brief: Comparator A
+* @brief Comparator A
 *****************************************************************************/
 
 typedef struct
@@ -180,7 +181,7 @@ typedef struct
 #define CA_BASE_PTRS  {CA}
 
 /*****************************************************************************
-* @brief: Flash
+* @brief Flash
 *****************************************************************************/
 
 typedef struct
@@ -196,7 +197,7 @@ typedef struct
 #define FLASH_BASE_PTRS  {FLASH}
 
 /*****************************************************************************
-* @brief: Port 1, 2, 3
+* @brief Port 1, 2, 3
 *****************************************************************************/
 
 typedef struct
@@ -238,10 +239,10 @@ typedef struct
     volatile uint8_t P2REN; /* Port 2 Resistor Enable */
 } REN_Type;
 
-#define REN_BASE       (0x0010U)
-#define REN            ((REN_Type *)REN_BASE)
-#define REN_BASE_ADDRS {REN_BASE}
-#define REN_BASE_PTRS  {REN}
+#define PIO_REN_BASE       (0x0010U)
+#define PIO_REN            ((REN_Type *)PIO_REN_BASE)
+#define PIO_REN_BASE_ADDRS {PIO_REN_BASE}
+#define PIO_REN_BASE_PTRS  {PIO_REN}
 
 typedef struct
 {
@@ -250,13 +251,13 @@ typedef struct
     volatile uint8_t P3SEL2; /* Port 3 Select 2 */
 } SEL2_Type;
 
-#define SEL2_BASE       (0x0041U)
-#define SEL2            ((SEL2_Type *)SEL2_BASE)
-#define SEL2_BASE_ADDRS {SEL2_BASE}
-#define SEL2_BASE_PTRS  {SEL2}
+#define PIO_SEL2_BASE       (0x0041U)
+#define PIO_SEL2            ((SEL2_Type *)PIO_SEL2_BASE)
+#define PIO_SEL2_BASE_ADDRS {PIO_SEL2_BASE}
+#define PIO_SEL2_BASE_PTRS  {PIO_SEL2}
 
 /*****************************************************************************
-* @brief: Timer0_A3
+* @brief Timer0_A3
 *****************************************************************************/
 
 typedef struct
@@ -289,7 +290,7 @@ typedef struct
 #define TA_BASE_PTRS  {TA0, TA1}
 
 /*****************************************************************************
-* @brief: USCI UART Mode
+* @brief USCI UART Mode
 *****************************************************************************/
 
 typedef struct
@@ -313,7 +314,7 @@ typedef struct
 #define USCI_UART_BASE_PTRS  {UCA0_UART}
 
 /*****************************************************************************
-* @brief: USCI SPI Mode
+* @brief USCI SPI Mode
 *****************************************************************************/
 
 typedef struct
@@ -337,7 +338,7 @@ typedef struct
 #define USCI_SPI_BASE_PTRS  {UCA0_SPI, UCB0_SPI}
 
 /*****************************************************************************
-* @brief: UCSI I2C Mode
+* @brief UCSI I2C Mode
 *****************************************************************************/
 
 typedef struct
@@ -367,7 +368,7 @@ typedef struct
 #define USCI_I2C_BASE_PTRS  {UCB0_I2C}
 
 /*****************************************************************************
-* @brief: Watchdog Timer
+* @brief Watchdog Timer
 *****************************************************************************/
 
 typedef struct
@@ -381,7 +382,7 @@ typedef struct
 /* clang-format off */
 
 /*****************************************************************************
-* @brief: IE1
+* @brief IE1
 *****************************************************************************/
 
 /* IE1_ACCVIE */
@@ -433,7 +434,7 @@ typedef struct
 #define IE1_WDTIE(x)    (((uint8_t)(((uint8_t)(x)) << IE1_WDTIE_SHIFT)) & IE1_WDTIE_MASK)
 
 /*****************************************************************************
-* @brief: IE2
+* @brief IE2
 *****************************************************************************/
 
 /* IE2_UCB0TXIE */
@@ -469,7 +470,7 @@ typedef struct
 #define IE2_UCA0RXIE(x)    (((uint8_t)(((uint8_t)(x)) << IE2_UCA0RXIE_SHIFT)) & IE2_UCA0RXIE_MASK)
 
 /*****************************************************************************
-* @brief: IFG1
+* @brief IFG1
 *****************************************************************************/
 
 /* IFG1_NMIIFG */
@@ -518,7 +519,7 @@ typedef struct
 #define IFG1_WDTIFG(x)    (((uint8_t)(((uint8_t)(x)) << IFG1_WDTIFG_SHIFT)) & IFG1_WDTIFG_MASK)
 
 /*****************************************************************************
-* @brief: IFG2
+* @brief IFG2
 *****************************************************************************/
 
 /* IFG2_UCB0TXIFG */
@@ -558,7 +559,7 @@ typedef struct
 #define IFG2_UCA0RXIFG(x)    (((uint8_t)(((uint8_t)(x)) << IFG2_UCA0RXIFG_SHIFT)) & IFG2_UCA0RXIFG_MASK)
 
 /*****************************************************************************
- * @brief: ADC10_CTL0
+ * @brief ADC10_CTL0
  *****************************************************************************/
 
  /* ADC10_CTL0_SREF */
@@ -704,7 +705,7 @@ typedef struct
 #define ADC10_CTL0_SREF_BUF_VEREF_VREF (7U) /* Select reference: VR+ = Buffered VeREF+ and VR- = VREF-/ VeREF-. Devices with VeREF+ and VeREF- pins only */
 
 /*****************************************************************************
- * @brief: ADC10_CTL1
+ * @brief ADC10_CTL1
  *****************************************************************************/
 
 /* ADC10_CTL1_INCH */
@@ -839,7 +840,7 @@ typedef struct
 #define ADC10_CTL1_CONSEQ_REPEAT_SEQUENCE (3U) /* Conversion sequence mode select: Repeat-sequence-of-channels mode */
 
 /*****************************************************************************
- * @brief: ADC10_MEM
+ * @brief ADC10_MEM
  *****************************************************************************/
 
  /* ADC10_MEM */
@@ -852,7 +853,7 @@ typedef struct
 #define ADC10_MEM(x)    (((uint16_t)(((uint16_t)(x)) << ADC10_MEM_SHIFT)) & ADC10_MEM_MASK)
 
 /*****************************************************************************
- * @brief: ADC10_DTC0
+ * @brief ADC10_DTC0
  *****************************************************************************/
 
  /* ADC10_DTC0_ADC10TB */
@@ -891,7 +892,7 @@ typedef struct
 #define ADC10_DTC0_ADC10FETCH(x)    (((uint8_t)(((uint8_t)(x)) << ADC10_DTC0_ADC10FETCH_SHIFT)) & ADC10_DTC0_ADC10FETCH_MASK)
 
 /*****************************************************************************
-* @brief: BCS_DCOCTL
+* @brief BCS_DCOCTL
 *****************************************************************************/
 
 /* BCS_DCOCTL_DCO */
@@ -912,7 +913,7 @@ typedef struct
 #define BCS_DCOCTL_MOD(x)    (((uint8_t)(((uint8_t)(x)) << BCS_DCOCTL_MOD_SHIFT)) & BCS_DCOCTL_MOD_MASK)
 
 /*****************************************************************************
-* @brief: BCS_CTL1
+* @brief BCS_CTL1
 *****************************************************************************/
 
 /* BCS_CTL1_XT2OFF */
@@ -964,7 +965,7 @@ typedef struct
 #define BCS_CTL1_DIVA_8 (3U) /* Divider for ACLK: 8 */
 
 /*****************************************************************************
-* @brief: BCS_CTL2
+* @brief BCS_CTL2
 *****************************************************************************/
 
 /* BCS_CTL2_SELM */
@@ -1033,7 +1034,7 @@ typedef struct
 #define BCS_CTL2_DIVS_8 (3U) /* Divider for SMCLK: 8 */
 
 /*****************************************************************************
-* @brief: BCS_CTL3
+* @brief BCS_CTL3
 *****************************************************************************/
 
 /* BCS_CTL3_XT2S */
@@ -1120,7 +1121,7 @@ typedef struct
 #define BCS_CTL3_XCAP_12PF (3U) /* Oscillator capacitor selection: 12.5 pF */
 
 /*****************************************************************************
-* @brief: CA_CTL1
+* @brief CA_CTL1
 *****************************************************************************/
 
 /* CA_CTL1_CAIFG */
@@ -1189,7 +1190,7 @@ typedef struct
 #define CA_CTL1_CAREF_DIOIDE   (3U) /* Comparator_A+ reference: Diode reference is selected */
 
 /*****************************************************************************
-* @brief: CA_CTL2
+* @brief CA_CTL2
 *****************************************************************************/
 
 /* CA_CTL2_CAOUT */
@@ -1248,7 +1249,7 @@ typedef struct
 #define CA_CTL2_P2CA1_CA7           (7U) /* Input select: CA7 */
 
 /*****************************************************************************
-* @brief: CA_PD
+* @brief CA_PD
 *****************************************************************************/
 
 /* CA_PD_CA_PD0 */
@@ -1348,7 +1349,7 @@ typedef struct
 #define CA_PD_CA_PD7(x)    (((uint8_t)(((uint8_t)(x)) << CA_PD_CA_PD7_SHIFT)) & CA_PD_CA_PD7_MASK)
 
 /*****************************************************************************
-* @brief: FLASH_CTL1
+* @brief FLASH_CTL1
 *****************************************************************************/
 
 /* FLASH_CTL1_FWKEY */
@@ -1393,7 +1394,7 @@ typedef struct
 #define FLASH_CTL1_ERASE(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL1_ERASE_SHIFT)) & FLASH_CTL1_ERASE_MASK)
 
 /*****************************************************************************
-* @brief: FLASH_CTL2
+* @brief FLASH_CTL2
 *****************************************************************************/
 
 /* FLASH_CTL2_FWKEY */
@@ -1428,7 +1429,7 @@ typedef struct
 #define FLASH_CTL2_FSSEL_SMCLK2 (3U) /* Flash controller clock source select: SMCLK */
 
 /*****************************************************************************
-* @brief: FLASH_CTL3
+* @brief FLASH_CTL3
 *****************************************************************************/
 
 /* FLASH_CTL3_FWKEY */
@@ -1515,7 +1516,7 @@ typedef struct
 #define FLASH_CTL3_BUSY(x)    (((uint16_t)(((uint16_t)(x)) << FLASH_CTL3_BUSY_SHIFT)) & FLASH_CTL3_BUSY_MASK)
 
 /*****************************************************************************
-* @brief: TA_CTL
+* @brief TA_CTL
 *****************************************************************************/
 
 /* TA_CTL_TASSEL */
@@ -1583,13 +1584,13 @@ typedef struct
 #define TA_CTL_ID_4 (2U) /* Timer A input divider: 4 */
 #define TA_CTL_ID_8 (3U) /* Timer A input divider: 8 */
 
-#define TA_CTL_TASSEL_TACLK (0*0x100u) /* Timer A clock source select: TACLK */
-#define TA_CTL_TASSEL_ACLK  (1*0x100u) /* Timer A clock source select: ACLK  */
-#define TA_CTL_TASSEL_SMCLK (2*0x100u) /* Timer A clock source select: SMCLK */
-#define TA_CTL_TASSEL_INCLK (3*0x100u) /* Timer A clock source select: INCLK */
+#define TA_CTL_TASSEL_TACLK (0U) /* Timer A clock source select: TACLK */
+#define TA_CTL_TASSEL_ACLK  (1U) /* Timer A clock source select: ACLK  */
+#define TA_CTL_TASSEL_SMCLK (2U) /* Timer A clock source select: SMCLK */
+#define TA_CTL_TASSEL_INCLK (3U) /* Timer A clock source select: INCLK */
 
 /*****************************************************************************
-* @brief: TA_CCTL
+* @brief TA_CCTL
 *****************************************************************************/
 
 /* TA_CCTL_CM */
@@ -1718,7 +1719,7 @@ is latched with the EQUx signal and can be read via this bit */
 #define TAIV_TAIFG  (10U) /* TA0IFG */
 
 /*****************************************************************************
-* @brief: USCI_UART_CTL0
+* @brief USCI_UART_CTL0
 *****************************************************************************/
 
 /* USCI_UART_CTL0_UCPEN */
@@ -1787,7 +1788,7 @@ is latched with the EQUx signal and can be read via this bit */
 #define USCI_UART_CTL0_UCMODE_UART_AUTO   (3U) /* USCI mode: UART mode with automatic baud rate detection */
 
 /*****************************************************************************
-* @brief: USCI_UART_CTL1
+* @brief USCI_UART_CTL1
 *****************************************************************************/
 
 /* USCI_UART_CTL1_UCSSEL */
@@ -1861,7 +1862,7 @@ is latched with the EQUx signal and can be read via this bit */
 #define USCI_UART_CTL1_UCSSEL_SMCLK2 (3U) /* USCI clock source select: SMCLK */
 
 /*****************************************************************************
-* @brief: USCI_UART_MCTL
+* @brief USCI_UART_MCTL
 *****************************************************************************/
 
 /* USCI_UART_MCTL_UCBRF0 */
@@ -1889,7 +1890,7 @@ is latched with the EQUx signal and can be read via this bit */
 #define USCI_UART_MCTL_UCOS16(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_MCTL_UCOS16_SHIFT)) & USCI_UART_MCTL_UCOS16_MASK)
 
 /*****************************************************************************
-* @brief: USCI_UART_STAT
+* @brief USCI_UART_STAT
 *****************************************************************************/
 
 /* USCI_UART_STAT_UCLISTEN */
@@ -1967,7 +1968,7 @@ is latched with the EQUx signal and can be read via this bit */
 #define USCI_UART_STAT_UCBUSY(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_STAT_UCBUSY_SHIFT)) & USCI_UART_STAT_UCBUSY_MASK)
 
 /*****************************************************************************
-* @brief: USCI_UART_IRTCTL
+* @brief USCI_UART_IRTCTL
 *****************************************************************************/
 
 /* USCI_UART_IRTCTL_UCIRTXPL */
@@ -1993,7 +1994,7 @@ is latched with the EQUx signal and can be read via this bit */
 #define USCI_UART_IRTCTL_UCIREN(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_IRTCTL_UCIREN_SHIFT)) & USCI_UART_IRTCTL_UCIREN_MASK)
 
 /*****************************************************************************
-* @brief: USCI_UART_IRRCTL
+* @brief USCI_UART_IRRCTL
 *****************************************************************************/
 
 /* USCI_UART_IRRCTL_UCIRRXFL */
@@ -2020,7 +2021,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define USCI_UART_IRRCTL_UCIRRXFE(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_IRRCTL_UCIRRXFE_SHIFT)) & USCI_UART_IRRCTL_UCIRRXFE_MASK)
 
 /*****************************************************************************
-* @brief: USCI_UART_ABCTL
+* @brief USCI_UART_ABCTL
 *****************************************************************************/
 
 /* USCI_UART_ABCTL_UCDELIM */
@@ -2059,7 +2060,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define USCI_UART_ABCTL_UCABDEN(x)    (((uint8_t)(((uint8_t)(x)) << USCI_UART_ABCTL_UCABDEN_SHIFT)) & USCI_UART_ABCTL_UCABDEN_MASK)
 
 /*****************************************************************************
-* @brief: UCSI_SPI_CTL0
+* @brief UCSI_SPI_CTL0
 *****************************************************************************/
 
 /* USCI_SPI_CTL0_UCCKPH */
@@ -2127,7 +2128,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define USCI_SPI_CTL0_UCMODE_I2C         (3U) /* USCI mode: I2C mode */
 
 /*****************************************************************************
-* @brief: UCSI_SPI_CTL1
+* @brief UCSI_SPI_CTL1
 *****************************************************************************/
 
 /* UCSI_SPI_CTL1_UCSSEL */
@@ -2155,7 +2156,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define USCI_SPI_CTL1_UCSSEL_SMCLK2   (3U) /* USCI clock source select: SMCLKs */
 
 /*****************************************************************************
-* @brief: UCSI_SPI_STAT
+* @brief UCSI_SPI_STAT
 *****************************************************************************/
 
 /* UCSI_SPI_STAT_UCLISTEN */
@@ -2195,7 +2196,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define UCSI_SPI_STAT_UCBUSY(x)    (((uint8_t)(((uint8_t)(x)) << UCSI_SPI_STAT_UCBUSY_SHIFT)) & UCSI_SPI_STAT_UCBUSY_MASK)
 
 /*****************************************************************************
-* @brief: UCSI_I2C_CTL0
+* @brief UCSI_I2C_CTL0
 *****************************************************************************/
 
 /* USCI_I2C_CTL0_UCA10 */
@@ -2257,7 +2258,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define USCI_I2C_CTL0_UCMODE_I2C         (3U) /* USCI mode: I2C mode */
 
 /*****************************************************************************
-* @brief: UCSI_I2C_CTL1
+* @brief UCSI_I2C_CTL1
 *****************************************************************************/
 
 /* UCSI_I2C_CTL1_UCSSEL */
@@ -2321,7 +2322,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define USCI_I2C_CTL1_UCSSEL_SMCLK2   (3U) /* USCI clock source select: SMCLKs */
 
 /*****************************************************************************
-* @brief: UCSI_I2C_STAT
+* @brief UCSI_I2C_STAT
 *****************************************************************************/
 
 /* UCSI_I2C_STAT_UCSCLLOW */
@@ -2381,7 +2382,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define UCSI_I2C_STAT_UCALIFG(x)    (((uint8_t)(((uint8_t)(x)) << UCSI_I2C_STAT_UCALIFG_SHIFT)) & UCSI_I2C_STAT_UCALIFG_MASK)
 
 /*****************************************************************************
-* @brief: UCSI_I2C_ADDR_I2COA
+* @brief UCSI_I2C_ADDR_I2COA
 *****************************************************************************/
 
 /* UCSI_I2C_ADDR_I2COA_UCGCEN */
@@ -2402,7 +2403,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define UCSI_I2C_ADDR_I2COA_I2COA(x)    (((uint16_t)(((uint16_t)(x)) << UCSI_I2C_ADDR_I2COA_I2COA_SHIFT)) & UCSI_I2C_ADDR_I2COA_I2COA_MASK)
 
 /*****************************************************************************
-* @brief: UCSI_I2C_ADDR_I2CSA
+* @brief UCSI_I2C_ADDR_I2CSA
 *****************************************************************************/
 
 /* UCSI_I2C_ADDR_I2CSA_I2CSA */
@@ -2416,7 +2417,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define UCSI_I2C_ADDR_I2CSA_I2CSA(x)    (((uint16_t)(((uint16_t)(x)) << UCSI_I2C_ADDR_I2CSA_I2CSA_SHIFT)) & UCSI_I2C_ADDR_I2CSA_I2CSA_MASK)
 
 /*****************************************************************************
-* @brief: WDT_CTL
+* @brief WDT_CTL
 *****************************************************************************/
 
 /* WDT_CTL_WDTPW */
@@ -2521,7 +2522,7 @@ by: tMIN = (UCIRRXFLx + 4) / (2 ? fBRCLK) */
 #define WDT_ARST_1_9        (WDTPW+WDTCNTCL+WDTSSEL+WDTIS1+WDTIS0)            /* 1.9ms   " */
 
 /*****************************************************************************
-* @brief: Calibration Data
+* @brief Calibration Data
 *****************************************************************************/
 
 #define TAG_DCO_30             (0x01)    /* Tag for DCO30  Calibration Data */
